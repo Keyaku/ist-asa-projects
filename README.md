@@ -1,2 +1,3 @@
-# ist-asa-projects
-IST - ASA - Container of various projects
+# IST - Análise e Síntese de Algoritmos - Projects
+
+A directory of projects of various years.

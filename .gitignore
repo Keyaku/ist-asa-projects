@@ -1,3 +1,12 @@
+# Project-related files
+*.vscode
+proj/*/proj
+proj/*/projpp
+
+# OS files
+*.DS_Store
+*Thumbs.db
+
 # Prerequisites
 *.d
 
