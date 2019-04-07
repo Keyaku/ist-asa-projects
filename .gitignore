@@ -1,7 +1,6 @@
 # Project-related files
 *.vscode
-proj/*/proj
-proj/*/projpp
+bld/*
 
 # OS files
 *.DS_Store
