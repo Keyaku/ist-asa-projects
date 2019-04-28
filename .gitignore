@@ -1,6 +1,7 @@
 # Project-related files
 *.vscode
 bld/*
+tests/
 
 # OS files
 *.DS_Store
