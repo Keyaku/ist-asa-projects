@@ -55,6 +55,14 @@ typedef struct graph {
 
 } Graph;
 
+/* Finds a specified Edge. Returns 0 if not found */
+Edge find_edge(Graph *g, Vertex u, Vertex v)
+{
+	Edge edge;
+	for (edge = g->first[u]; g->next[edge] != 0 && g->vertex[edge] != v; edge = g->next[edge]);
+	return edge;
+}
+
 /* Connects two Vertices */
 void graph_connect(Graph *g, Vertex u, Vertex v, bool undirected)
 {
@@ -64,8 +72,7 @@ void graph_connect(Graph *g, Vertex u, Vertex v, bool undirected)
 	if (g->first[u] == 0) {
 		g->first[u] = g->nr_edges;
 	} else {
-		Edge adj;
-		for (adj = g->first[u]; g->next[adj] != 0 && g->vertex[adj] != v; adj = g->next[adj]);
+		Edge adj = find_edge(g, u, v);
 		/* if Vertex v is already in here, stop everything */
 		if (g->vertex[adj] == v) {
 			g->vertex[g->nr_edges--] = 0;
@@ -109,14 +116,6 @@ void graph_init(Graph *g, int num_e)
 		/* Connect them to the graph */
 		graph_connect(g, u, v, g->is_bidir);
 	}
-}
-
-void graph_reset(Graph *g)
-{
-	memset(g->first,  0, (g->nr_vertices+1) * sizeof(*g->first));
-	memset(g->vertex, 0, (g->nr_edges+1)    * sizeof(*g->vertex));
-	memset(g->next,   0, (g->nr_edges+1)    * sizeof(*g->next));
-	g->nr_edges = 0;
 }
 
 void graph_destroy(Graph *g)
