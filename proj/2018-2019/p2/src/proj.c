@@ -12,10 +12,11 @@
 #endif
 
 /*************************** Auxiliary functions ******************************/
-#define get_number(a)     scanf("%d", a)
-#define get_numbers(a, b) scanf("%d %d", a, b)
 #define max(a, b) (a < b ? b : a)
 #define min(a, b) (a > b ? b : a)
+#define get_number(a) scanf("%d", a)
+#define get_2_numbers(a, b) scanf("%d %d", a, b)
+#define get_3_numbers(a, b, c) scanf("%d %d %d", a, b, c)
 
 /*************************** Fake boolean structure ****************************/
 typedef unsigned char bool;
@@ -27,7 +28,7 @@ typedef int Vertex;
 #define vertex_new(a)  a
 #define vertex_next(a) a + 1
 #define vertex_prev(a) a - 1
-#define vertex_root(a) 1
+#define vertex_root()  1
 #define vertex_end(GRAPH) GRAPH->nr_vertices
 #define vertex_iter(GRAPH, a) a <= vertex_end(GRAPH)
 
@@ -38,7 +39,7 @@ int cmp_vertex(const void *a, const void *b) {
 /******************************* Edge structure ********************************/
 typedef int Edge;
 
-/****************************** Graph structure *******************************/
+/*************************** Weighted Graph structure **************************/
 typedef struct graph {
 
 	/* Core graph data */
@@ -52,8 +53,12 @@ typedef struct graph {
 	Edge   *next;     /* next[Edge]    = Edge   */
 
 	/* Other data */
+	int *v_weight;  /* v_weight[Vertex] = weight */
+	int *e_weight;  /* e_weight[Edge]   = weight */
 
 } Graph;
+
+#define max_capacity(GRAPH) GRAPH->v_weight[0]
 
 /* Finds a specified Edge. Returns 0 if not found */
 Edge find_edge(Graph *g, Vertex u, Vertex v)
@@ -64,42 +69,38 @@ Edge find_edge(Graph *g, Vertex u, Vertex v)
 }
 
 /* Connects two Vertices */
-void graph_connect(Graph *g, Vertex u, Vertex v, bool undirected)
+Edge graph_connect(Graph *g, Vertex u, Vertex v)
 {
-	g->nr_edges++;
-	g->vertex[g->nr_edges] = v;
+	Edge edge = ++g->nr_edges;
+	g->vertex[edge] = v;
 
 	if (g->first[u] == 0) {
-		g->first[u] = g->nr_edges;
+		g->first[u] = edge;
 	} else {
-		Edge adj = find_edge(g, u, v);
+		edge = find_edge(g, u, v);
 		/* if Vertex v is already in here, stop everything */
-		if (g->vertex[adj] == v) {
+		if (g->vertex[edge] == v) {
 			g->vertex[g->nr_edges--] = 0;
-			return;
+			return 0;
 		}
-		g->next[adj] = g->nr_edges;
+		g->next[edge] = g->nr_edges;
 	}
 
-	if (undirected) { /* Add reverse Edge */
-		graph_connect(g, v, u, false);
-	}
+	return edge;
 }
 
 /* Creates a new Graph */
-void graph_new(Graph *g, int num_v, int num_e, bool is_bidir)
+void graph_new(Graph *g, int num_v, int num_e)
 {
 	g->nr_vertices = num_v;
 	g->nr_edges    = 0;
-	g->is_bidir    = is_bidir;
-
-	if (is_bidir) {
-		num_e *= 2;
-	}
 
 	g->first  = calloc((num_v+1), sizeof(*g->first));
 	g->vertex = calloc((num_e+1), sizeof(*g->vertex));
 	g->next   = calloc((num_e+1), sizeof(*g->next));
+
+	g->v_weight = calloc((num_v+1), sizeof(*g->v_weight));
+	g->e_weight = calloc((num_e+1), sizeof(*g->e_weight));
 }
 
 /* Initializes Graph with input data */
@@ -108,13 +109,29 @@ void graph_init(Graph *g, int num_e)
 	while (num_e-- > 0) {
 		int num1, num2;
 		Vertex u, v;
+		Edge edge;
 
 		/* Grab two numbers from input & convert them to Vertex */
-		get_numbers(&num1, &num2);
+		get_2_numbers(&num1, &num2);
 		u = vertex_new(num1);
 		v = vertex_new(num2);
 		/* Connect them to the graph */
-		graph_connect(g, u, v, g->is_bidir);
+		edge = graph_connect(g, u, v);
+
+		/* Adding Edge weight */
+		get_number(&num1);
+		g->e_weight[edge] = num1;
+
+	}
+}
+
+void graph_add_weights(Graph *g)
+{
+	Vertex u = vertex_root();
+	/* Adding Vertex weights */
+	for (u = vertex_next(u); vertex_iter(g, vertex_prev(u)); u = vertex_next(u)) {
+		int num; get_number(&num);
+		g->v_weight[u] = num;
 	}
 }
 
@@ -123,6 +140,9 @@ void graph_destroy(Graph *g)
 	free(g->first);   g->first      = NULL;
 	free(g->vertex);  g->vertex     = NULL;
 	free(g->next);    g->next       = NULL;
+
+	free(g->v_weight); g->v_weight  = NULL;
+	free(g->e_weight); g->e_weight  = NULL;
 }
 
 /*************************** Special structure ********************************/
@@ -130,16 +150,16 @@ void graph_destroy(Graph *g)
 
 /***************************** MAIN function **********************************/
 int main(void) {
-	int num_v, num_e;
+	int f, e, t;
 	Graph g;
 
-	/* Grabbing input */
-	get_number(&num_v); /* Grabbing number of vertices */
-	get_number(&num_e); /* Grabbing number of edges */
+	/* Grabbing Graph's main data */
+	get_3_numbers(&f, &e, &t);
 
-	/* Instancing main graph from input */
-	graph_new(&g, num_v, num_e, true);
-	graph_init(&g, num_e);
+	/* Instancing Graph from input */
+	graph_new(&g, f+e, t);
+	graph_add_weights(&g); /* Adding weights to each vertex */
+	graph_init(&g, t);
 
 	/* Apply this project's magic */
 	// TODO
