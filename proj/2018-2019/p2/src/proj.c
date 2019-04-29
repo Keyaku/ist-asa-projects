@@ -87,7 +87,7 @@ typedef struct graph {
 	Edge   *next;     /* next[Edge]    = Edge   */
 
 	/* Other data */
-	int *capacity;   /* capacity[Edge] = weight */
+	int *capacity;   /* capacity[Edge] */
 
 } Graph;
 
@@ -142,18 +142,17 @@ void graph_init(Graph *g, int num_e)
 	while (num_e-- > 0) {
 		int num1, num2;
 		Vertex u, v;
-		Edge edge;
+		Edge e;
 
 		/* Grab two numbers from input & convert them to Vertex */
 		get_2_numbers(&num1, &num2);
 		u = vertex_new(num1);
 		v = vertex_new(num2);
-		/* Connect them to the graph */
-		edge = graph_connect(g, u, v);
 
-		/* Adding Edge weight */
+		/* Adding Edge to Graph */
+		e = graph_connect(g, u, v);
 		get_number(&num1);
-		g->capacity[edge] = num1;
+		g->capacity[e] = num1;
 	}
 }
 
@@ -163,9 +162,11 @@ void graph_add_weights(Graph *g)
 	/* Adding Vertex weights */
 	for (u = vertex_next(u); vertex_iter(g, vertex_prev(u)); u = vertex_next(u)) {
 		int num;
-		Edge e = graph_connect(g, source, u);
-		get_number(&num);
+		Edge e;
 
+		/* Adding source Edge to Graph */
+		e = graph_connect(g, source, u);
+		get_number(&num);
 		g->capacity[e] = num;
 	}
 }
