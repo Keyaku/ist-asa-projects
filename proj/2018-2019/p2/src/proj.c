@@ -39,6 +39,41 @@ int cmp_vertex(const void *a, const void *b) {
 /******************************* Edge structure ********************************/
 typedef int Edge;
 
+/****************************** Queue structure ********************************/
+typedef struct queue {
+	int front, rear;
+	Vertex *data;    /* data[idx] = Vertex */
+	bool *in_queue; /* in_queue[Vertex] = boolean */
+} Queue;
+
+void queue_new(Queue *q, size_t size, bool refcount) {
+	q->data     = malloc(size * sizeof(*q->data));
+	q->in_queue = refcount ? calloc(size, sizeof(*q->in_queue)) : NULL;
+	q->front = q->rear = 0;
+}
+void queue_destroy(Queue *q) {
+	free(q->data);     q->data = NULL;
+	free(q->in_queue); q->in_queue = NULL;
+}
+
+void queue_push(Queue *q, Vertex u) {
+	q->data[q->rear++] = u;
+	if (q->in_queue) { q->in_queue[u] = true; }
+}
+Vertex queue_pop(Queue *q) {
+	Vertex u = q->data[q->front++];
+	if (q->in_queue) { q->in_queue[u] = false; }
+	return u;
+}
+
+int queue_size(Queue *q) { return q->rear - q->front; }
+bool queue_in_queue(Queue *q, Vertex u) { return q->in_queue ? q->in_queue[u] : false; }
+bool queue_is_empty(Queue *q) { return q->front == q->rear; }
+void queue_reset(Queue *q) {
+	if (q->in_queue) { memset(q->in_queue, false, (q->rear) * sizeof(*q->in_queue)); }
+	q->front = q->rear = 0;
+}
+
 /*************************** Weighted Graph structure **************************/
 typedef struct graph {
 
