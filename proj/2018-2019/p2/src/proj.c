@@ -180,6 +180,28 @@ void graph_destroy(Graph *g)
 }
 
 /*************************** Special structure ********************************/
+bool bfs(Graph *g, Queue *q)
+{
+	/* Resetting data */
+	queue_reset(q);
+
+	/* Adding source to Queue */
+	queue_push(q, source);
+
+	while (!queue_is_empty(q)) {
+		Edge adj;
+		Vertex u = queue_pop(q);
+
+		for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
+			Vertex v = g->vertex[adj];
+
+			// TODO: Add vertex to Queue if condition is verified
+		}
+	}
+
+	return false; // FIXME: Add condition
+}
+
 
 void apply(Graph *g)
 {
