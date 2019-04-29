@@ -52,12 +52,12 @@ typedef struct graph {
 	Edge   *next;     /* next[Edge]    = Edge   */
 
 	/* Other data */
-	int *v_weight;  /* v_weight[Vertex] = weight */
-	int *e_weight;  /* e_weight[Edge]   = weight */
+	int *v_capacity;  /* v_capacity[Vertex] = weight */
+	int *e_capacity;  /* e_capacity[Edge]   = weight */
 
 } Graph;
 
-#define max_capacity(GRAPH) GRAPH->v_weight[0]
+#define max_capacity(GRAPH) GRAPH->v_capacity[0]
 
 /* Finds a specified Edge. Returns 0 if not found */
 Edge graph_find_edge(Graph *g, Vertex u, Vertex v)
@@ -98,8 +98,8 @@ void graph_new(Graph *g, int num_v, int num_e)
 	g->vertex = calloc((num_e+1), sizeof(*g->vertex));
 	g->next   = calloc((num_e+1), sizeof(*g->next));
 
-	g->v_weight = calloc((num_v+1), sizeof(*g->v_weight));
-	g->e_weight = calloc((num_e+1), sizeof(*g->e_weight));
+	g->v_capacity = calloc((num_v+1), sizeof(*g->v_capacity));
+	g->e_capacity = calloc((num_e+1), sizeof(*g->e_capacity));
 }
 
 /* Initializes Graph with input data */
@@ -119,7 +119,7 @@ void graph_init(Graph *g, int num_e)
 
 		/* Adding Edge weight */
 		get_number(&num1);
-		g->e_weight[edge] = num1;
+		g->e_capacity[edge] = num1;
 
 	}
 }
@@ -130,7 +130,7 @@ void graph_add_weights(Graph *g)
 	/* Adding Vertex weights */
 	for (u = vertex_next(u); vertex_iter(g, vertex_prev(u)); u = vertex_next(u)) {
 		int num; get_number(&num);
-		g->v_weight[u] = num;
+		g->v_capacity[u] = num;
 	}
 }
 
@@ -140,8 +140,8 @@ void graph_destroy(Graph *g)
 	free(g->vertex);  g->vertex     = NULL;
 	free(g->next);    g->next       = NULL;
 
-	free(g->v_weight); g->v_weight  = NULL;
-	free(g->e_weight); g->e_weight  = NULL;
+	free(g->v_capacity); g->v_capacity  = NULL;
+	free(g->e_capacity); g->e_capacity  = NULL;
 }
 
 /*************************** Special structure ********************************/
