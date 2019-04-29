@@ -228,6 +228,9 @@ void apply(Graph *g)
 	for (i = 0; i < 0; i++) {
 		// TODO: print sequence of src-dst vertices that need augmenting
 	}
+
+	/* Destroying data */
+	queue_destroy(&stations);
 }
 
 /***************************** MAIN function **********************************/
