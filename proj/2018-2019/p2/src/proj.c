@@ -181,6 +181,32 @@ void graph_destroy(Graph *g)
 
 /*************************** Special structure ********************************/
 
+void apply(Graph *g)
+{
+	int i, size;
+	int max_flow = -1;
+	Queue stations;
+
+	/* Initializing data */
+	queue_new(&stations, g->nr_vertices+1, true);
+
+	/* Summoning algorithm */
+	// TODO
+
+	/* Outputting */
+	printf("%d\n", max_flow);
+
+	size = queue_size(&stations);
+	for (i = 0; i < size; i++) {
+		Vertex u = queue_pop(&stations);
+		printf("%d", u);
+		if (i+1 < size) printf(" ");
+	} printf("\n");
+
+	for (i = 0; i < 0; i++) {
+		// TODO: print sequence of src-dst vertices that need augmenting
+	}
+}
 
 /***************************** MAIN function **********************************/
 int main(void) {
@@ -196,7 +222,7 @@ int main(void) {
 	graph_init(&g, t);
 
 	/* Apply this project's magic */
-	// TODO
+	apply(&g);
 
 	/* Freeing data */
 	graph_destroy(&g);
