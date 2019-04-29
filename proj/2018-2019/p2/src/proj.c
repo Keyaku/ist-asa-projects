@@ -60,7 +60,7 @@ typedef struct graph {
 #define max_capacity(GRAPH) GRAPH->v_weight[0]
 
 /* Finds a specified Edge. Returns 0 if not found */
-Edge find_edge(Graph *g, Vertex u, Vertex v)
+Edge graph_find_edge(Graph *g, Vertex u, Vertex v)
 {
 	Edge edge;
 	for (edge = g->first[u]; g->next[edge] != 0 && g->vertex[edge] != v; edge = g->next[edge]);
@@ -76,7 +76,7 @@ Edge graph_connect(Graph *g, Vertex u, Vertex v)
 	if (g->first[u] == 0) {
 		g->first[u] = edge;
 	} else {
-		edge = find_edge(g, u, v);
+		edge = graph_find_edge(g, u, v);
 		/* if Vertex v is already in here, stop everything */
 		if (g->vertex[edge] == v) {
 			g->vertex[g->nr_edges--] = 0;
