@@ -45,7 +45,6 @@ typedef struct graph {
 	/* Core graph data */
 	int nr_vertices;
 	int nr_edges;
-	bool is_bidir;
 
 	/* Graph composition, represented as an Edge array */
 	Edge   *first;    /* first[Vertex] = Edge   */
