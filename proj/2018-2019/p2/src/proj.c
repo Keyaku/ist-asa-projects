@@ -170,6 +170,25 @@ void graph_add_weights(Graph *g)
 	}
 }
 
+void graph_print(Graph *g)
+{
+	Vertex u;
+	for (u = source; vertex_iter(g, u); u = vertex_next(u)) {
+		Edge adj;
+
+		for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
+			Vertex v = g->vertex[adj];
+
+			if (g->capacity[v] > 0) {
+				u == source ? printf("s") : printf("%d", u);
+				printf(" -- %3d --> ", g->capacity[v]);
+				v == sink ? printf("t\n") : printf("%d\n", v);
+			}
+		}
+	}
+
+}
+
 void graph_destroy(Graph *g)
 {
 	free(g->first);   g->first      = NULL;
