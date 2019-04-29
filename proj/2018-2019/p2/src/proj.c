@@ -87,12 +87,12 @@ typedef struct graph {
 	Edge   *next;     /* next[Edge]    = Edge   */
 
 	/* Other data */
-	int *v_capacity;  /* v_capacity[Vertex] = weight */
-	int *e_capacity;  /* e_capacity[Edge]   = weight */
+	int *capacity;   /* capacity[Edge] = weight */
 
 } Graph;
 
-#define max_capacity(GRAPH) GRAPH->v_capacity[0]
+#define source 0
+#define sink   1
 
 /* Finds a specified Edge. Returns 0 if not found */
 Edge graph_find_edge(Graph *g, Vertex u, Vertex v)
@@ -133,8 +133,7 @@ void graph_new(Graph *g, int num_v, int num_e)
 	g->vertex = calloc((num_e+1), sizeof(*g->vertex));
 	g->next   = calloc((num_e+1), sizeof(*g->next));
 
-	g->v_capacity = calloc((num_v+1), sizeof(*g->v_capacity));
-	g->e_capacity = calloc((num_e+1), sizeof(*g->e_capacity));
+	g->capacity = calloc((num_e+1), sizeof(*g->capacity));
 }
 
 /* Initializes Graph with input data */
@@ -154,8 +153,7 @@ void graph_init(Graph *g, int num_e)
 
 		/* Adding Edge weight */
 		get_number(&num1);
-		g->e_capacity[edge] = num1;
-
+		g->capacity[edge] = num1;
 	}
 }
 
@@ -164,8 +162,11 @@ void graph_add_weights(Graph *g)
 	Vertex u = vertex_root();
 	/* Adding Vertex weights */
 	for (u = vertex_next(u); vertex_iter(g, vertex_prev(u)); u = vertex_next(u)) {
-		int num; get_number(&num);
-		g->v_capacity[u] = num;
+		int num;
+		Edge e = graph_connect(g, source, u);
+		get_number(&num);
+
+		g->capacity[e] = num;
 	}
 }
 
@@ -175,8 +176,7 @@ void graph_destroy(Graph *g)
 	free(g->vertex);  g->vertex     = NULL;
 	free(g->next);    g->next       = NULL;
 
-	free(g->v_capacity); g->v_capacity  = NULL;
-	free(g->e_capacity); g->e_capacity  = NULL;
+	free(g->capacity); g->capacity  = NULL;
 }
 
 /*************************** Special structure ********************************/
