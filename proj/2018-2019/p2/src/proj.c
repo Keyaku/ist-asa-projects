@@ -85,8 +85,10 @@ typedef struct graph {
 	Edge   *first;    /* first[Vertex] = Edge   */
 	Vertex *vertex;   /* vertex[Edge]  = Vertex */
 	Edge   *next;     /* next[Edge]    = Edge   */
+	Edge   *prev;     /* prev[Edge]    = Edge   */
 
 	/* Other data */
+	int *flow;       /* flow[Edge] */
 	int *capacity;   /* capacity[Edge] */
 
 } Graph;
@@ -130,9 +132,11 @@ void graph_new(Graph *g, int num_v, int num_e)
 	g->nr_edges    = 0;
 
 	g->first  = calloc((num_v+1), sizeof(*g->first));
-	g->vertex = calloc((num_e+1), sizeof(*g->vertex));
-	g->next   = calloc((num_e+1), sizeof(*g->next));
+	g->vertex = calloc((num_e*2+1), sizeof(*g->vertex));
+	g->next   = calloc((num_e*2+1), sizeof(*g->next));
+	g->prev   = calloc((num_e+1), sizeof(*g->prev));
 
+	g->flow     = calloc((num_e+1), sizeof(*g->flow));
 	g->capacity = calloc((num_e+1), sizeof(*g->capacity));
 }
 
@@ -197,15 +201,31 @@ void graph_destroy(Graph *g)
 	free(g->first);   g->first      = NULL;
 	free(g->vertex);  g->vertex     = NULL;
 	free(g->next);    g->next       = NULL;
+	free(g->prev);    g->prev       = NULL;
 
+	free(g->flow);     g->flow      = NULL;
 	free(g->capacity); g->capacity  = NULL;
 }
 
+void graph_reverse(Graph *g)
+{
+	Vertex u = vertex_root();
+	for (u = vertex_next(u); vertex_iter(g, vertex_prev(u)); u = vertex_next(u)) {
+		Edge adj;
+
+		for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
+			Vertex v = g->vertex[adj];
+			g->prev[adj] = graph_connect(g, v, u);
+		}
+	}
+}
+
 /*************************** Special structure ********************************/
-bool bfs(Graph *g, Queue *q)
+bool bfs(Graph *g, Queue *q, int *level)
 {
 	/* Resetting data */
 	queue_reset(q);
+	memset(level, -1, (g->nr_vertices+1) * sizeof(*level));
 
 	/* Adding source to Queue */
 	queue_push(q, source);
@@ -214,16 +234,74 @@ bool bfs(Graph *g, Queue *q)
 		Edge adj;
 		Vertex u = queue_pop(q);
 
-		for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
+		for (adj = g->first[u]; adj > 0; adj = g->next[adj]) {
 			Vertex v = g->vertex[adj];
 
-			// TODO: Add vertex to Queue if condition is verified
+			if (level[v] < 0 && g->flow[adj] < g->capacity[adj]) {
+				level[v] = level[u] + 1;
+				queue_push(q, v);
+			}
 		}
 	}
 
-	return false; // FIXME: Add condition
+	return level[sink] >= 0;
 }
 
+int send_flow(Graph *g, Vertex u, int flow, int *level)
+{
+	Edge adj;
+
+	if (u == sink) return flow;
+
+	for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
+		Vertex v = g->vertex[adj];
+
+		if (level[v] == level[u]+1 && g->flow[adj] < g->capacity[adj]) {
+			int curr_flow = min(flow, g->capacity[adj] - g->flow[adj]);
+			int temp_flow = send_flow(g, v, curr_flow, level);
+
+			if (temp_flow > 0) {
+				Edge radj = g->prev[adj];
+				/* add flow to current edge */
+				g->flow[adj]  += temp_flow;
+
+				/* subtract flow from prev edge of current edge */
+				g->flow[radj] -= temp_flow;
+
+				return temp_flow;
+			}
+		}
+	}
+
+	return 0;
+}
+
+int dinic(Graph *g)
+{
+	int max_flow = 0;
+	int *level;
+	Queue q;
+
+	if (source == sink) return -1;
+
+	/* Initializing data structures */
+	level = malloc((g->nr_vertices+1) * sizeof(*level));
+	queue_new(&q, g->nr_vertices+1, true);
+
+	/* Running algorithms */
+	while (bfs(g, &q, level)) {
+		int flow;
+		while ((flow = send_flow(g, source, __INT_MAX__, level))) {
+			max_flow += flow;
+		}
+	}
+
+	/* Destroying data structures */
+	queue_destroy(&q);
+	free(level);
+
+	return max_flow;
+}
 
 void apply(Graph *g)
 {
@@ -234,7 +312,7 @@ void apply(Graph *g)
 	/* Initializing data */
 
 	/* Summoning algorithm */
-	// TODO
+	max_flow = dinic(g);
 
 	/* Outputting */
 	printf("%d\n", max_flow);
@@ -247,7 +325,7 @@ void apply(Graph *g)
 	} printf("\n");
 
 	for (i = 0; i < 0; i++) {
-		// TODO: print sequence of src-dst vertices that need augmenting
+		/* TODO: print sequence of src-dst vertices that need augmenting */
 	}
 
 	/* Destroying data */
@@ -265,6 +343,7 @@ int main(void) {
 	graph_new(&g, f+e, t);
 	graph_add_weights(&g); /* Adding weights to each vertex */
 	graph_init(&g, t);
+	// graph_reverse(&g);
 
 	/* Apply this project's magic */
 	apply(&g);
