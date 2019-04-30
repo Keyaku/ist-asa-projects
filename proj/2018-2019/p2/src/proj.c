@@ -111,13 +111,13 @@ Edge graph_connect(Graph *g, Vertex u, Vertex v)
 	if (g->first[u] == 0) {
 		g->first[u] = edge;
 	} else {
-		edge = graph_find_edge(g, u, v);
+		Edge adj = graph_find_edge(g, u, v);
 		/* if Vertex v is already in here, stop everything */
-		if (g->vertex[edge] == v) {
+		if (g->vertex[adj] == v) {
 			g->vertex[g->nr_edges--] = 0;
-			return edge;
+			return adj;
 		}
-		g->next[edge] = g->nr_edges;
+		g->next[adj] = g->nr_edges;
 	}
 
 	return edge;
