@@ -343,7 +343,7 @@ int main(void) {
 	graph_new(&g, f+e, t);
 	graph_add_weights(&g); /* Adding weights to each vertex */
 	graph_init(&g, t);
-	// graph_reverse(&g);
+	/* graph_reverse(&g); */
 
 	/* Apply this project's magic */
 	apply(&g);
