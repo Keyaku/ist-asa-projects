@@ -164,6 +164,8 @@ void graph_add_weights(Graph *g)
 		int num;
 		Edge e;
 
+		if (u == sink) continue;
+
 		/* Adding source Edge to Graph */
 		e = graph_connect(g, source, u);
 		get_number(&num);
