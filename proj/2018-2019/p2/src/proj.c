@@ -115,7 +115,7 @@ Edge graph_connect(Graph *g, Vertex u, Vertex v)
 		/* if Vertex v is already in here, stop everything */
 		if (g->vertex[edge] == v) {
 			g->vertex[g->nr_edges--] = 0;
-			return 0;
+			return edge;
 		}
 		g->next[edge] = g->nr_edges;
 	}
