@@ -164,9 +164,9 @@ void graph_init(Graph *g, int num_e)
 
 void graph_add_weights(Graph *g)
 {
-	Vertex u = vertex_root();
+	Vertex u;
 	/* Adding Vertex weights */
-	for (u = vertex_next(u); vertex_iter(g, vertex_prev(u)); u = vertex_next(u)) {
+	for (u = vertex_root(); vertex_iter(g, u); u = vertex_next(u)) {
 		int num;
 		Edge e;
 
@@ -182,7 +182,7 @@ void graph_add_weights(Graph *g)
 void graph_print(Graph *g)
 {
 	Vertex u;
-	for (u = source; vertex_iter(g, vertex_prev(u)); u = vertex_next(u)) {
+	for (u = source; vertex_iter(g, u); u = vertex_next(u)) {
 		Edge adj;
 
 		for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
@@ -342,7 +342,7 @@ int main(void) {
 	get_3_numbers(&f, &e, &t);
 
 	/* Instancing Graph from input */
-	graph_new(&g, f+e, t);
+	graph_new(&g, f+e+1, t);
 	graph_add_weights(&g); /* Adding weights to each vertex */
 	graph_init(&g, t);
 	/* graph_reverse(&g); */
