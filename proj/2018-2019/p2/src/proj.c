@@ -232,7 +232,6 @@ void apply(Graph *g)
 	Queue stations;
 
 	/* Initializing data */
-	queue_new(&stations, g->nr_vertices+1, true);
 
 	/* Summoning algorithm */
 	// TODO
@@ -240,7 +239,7 @@ void apply(Graph *g)
 	/* Outputting */
 	printf("%d\n", max_flow);
 
-	size = queue_size(&stations);
+	size = 0;
 	for (i = 0; i < size; i++) {
 		Vertex u = queue_pop(&stations);
 		printf("%d", u);
@@ -252,7 +251,6 @@ void apply(Graph *g)
 	}
 
 	/* Destroying data */
-	queue_destroy(&stations);
 }
 
 /***************************** MAIN function **********************************/
