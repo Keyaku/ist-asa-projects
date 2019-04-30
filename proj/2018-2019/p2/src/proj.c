@@ -191,7 +191,7 @@ void graph_print(Graph *g)
 			if (g->capacity[adj] > 0) {
 				u == source ? printf("s") : u == sink ? printf("t") : printf("%d", u);
 				printf(" -- %3d --> ", g->capacity[adj]);
-				v == sink ? printf("s") : v == sink ? printf("t") : printf("%d", v);
+				v == source ? printf("s") : v == sink ? printf("t") : printf("%d", v);
 				printf("\n");
 			}
 		}
