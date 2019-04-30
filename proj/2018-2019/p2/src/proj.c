@@ -189,9 +189,10 @@ void graph_print(Graph *g)
 			Vertex v = g->vertex[adj];
 
 			if (g->capacity[adj] > 0) {
-				u == source ? printf("s") : printf("%d", u);
+				u == source ? printf("s") : u == sink ? printf("t") : printf("%d", u);
 				printf(" -- %3d --> ", g->capacity[adj]);
-				v == sink ? printf("t\n") : printf("%d\n", v);
+				v == sink ? printf("s") : v == sink ? printf("t") : printf("%d", v);
+				printf("\n");
 			}
 		}
 	}
@@ -211,8 +212,8 @@ void graph_destroy(Graph *g)
 
 void graph_reverse(Graph *g)
 {
-	Vertex u = vertex_root();
-	for (u = vertex_next(u); vertex_iter(g, vertex_prev(u)); u = vertex_next(u)) {
+	Vertex u;
+	for (u = source; vertex_iter(g, u); u = vertex_next(u)) {
 		Edge adj;
 
 		for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
