@@ -181,11 +181,11 @@ void graph_add_sources(Graph *g, int vertices)
 	}
 }
 
-void graph_add_stops(Graph *g, int vertices)
+void graph_add_stops(Graph *g, int vertices, Vertex v)
 {
 	int i;
 
-	for (i = 0; i < vertices; i++) {
+	for (i = 0, v = vertex_next(v); i < vertices; v = vertex_next(v), i++) {
 		int num;
 		get_number(&num);
 		// TODO: something
@@ -224,33 +224,39 @@ void graph_destroy(Graph *g)
 }
 
 /*************************** Special structure ********************************/
-bool bfs(Graph *g, Queue *q, int *level)
+typedef struct {
+	int value;
+	Queue *q;
+	int *level;
+} MaxFlow;
+
+bool bfs(Graph *g, MaxFlow *mf)
 {
 	/* Resetting data */
-	queue_reset(q);
-	memset(level, -1, (g->nr_vertices+1) * sizeof(*level));
+	queue_reset(mf->q);
+	memset(mf->level, -1, (g->nr_vertices+1) * sizeof(*mf->level));
 
 	/* Adding source to Queue */
-	queue_push(q, source);
+	queue_push(mf->q, source);
 
-	while (!queue_is_empty(q)) {
+	while (!queue_is_empty(mf->q)) {
 		Edge adj;
-		Vertex u = queue_pop(q);
+		Vertex u = queue_pop(mf->q);
 
 		for (adj = g->first[u]; adj > 0; adj = g->next[adj]) {
 			Vertex v = g->vertex[adj];
 
-			if (level[v] < 0 && g->flow[adj] < g->capacity[adj]) {
-				level[v] = level[u] + 1;
-				queue_push(q, v);
+			if (mf->level[v] < 0 && g->flow[adj] < g->capacity[adj]) {
+				mf->level[v] = mf->level[u] + 1;
+				queue_push(mf->q, v);
 			}
 		}
 	}
 
-	return level[sink] >= 0;
+	return mf->level[sink] >= 0;
 }
 
-int send_flow(Graph *g, Vertex u, int flow, int *level)
+int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 {
 	Edge adj;
 
@@ -258,10 +264,11 @@ int send_flow(Graph *g, Vertex u, int flow, int *level)
 
 	for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
 		Vertex v = g->vertex[adj];
+		int cap = g->capacity[adj];
 
-		if (level[v] == level[u]+1 && g->flow[adj] < g->capacity[adj]) {
-			int curr_flow = min(flow, g->capacity[adj] - g->flow[adj]);
-			int temp_flow = send_flow(g, v, curr_flow, level);
+		if (mf->level[v] == mf->level[u]+1 && g->flow[adj] < cap) {
+			int curr_flow = min(flow, cap - g->flow[adj]);
+			int temp_flow = send_flow(g, v, curr_flow, mf->level);
 
 			if (temp_flow > 0) {
 				Edge radj = g->prev[adj];
@@ -281,29 +288,30 @@ int send_flow(Graph *g, Vertex u, int flow, int *level)
 
 int dinic(Graph *g)
 {
-	int max_flow = 0;
-	int *level;
+	MaxFlow mf;
 	Queue q;
 
 	if (source == sink) return -1;
 
 	/* Initializing data structures */
-	level = malloc((g->nr_vertices+1) * sizeof(*level));
+	mf.value = 0;
+	mf.q = &q;
+	mf.level = malloc((g->nr_vertices+1) * sizeof(*mf.level));
 	queue_new(&q, g->nr_vertices+1, true);
 
 	/* Running algorithms */
-	while (bfs(g, &q, level)) {
+	while (bfs(g, &mf)) {
 		int flow;
-		while ((flow = send_flow(g, source, __INT_MAX__, level))) {
-			max_flow += flow;
+		while ((flow = send_flow(g, source, __INT_MAX__, &mf))) {
+			mf.value += flow;
 		}
 	}
 
 	/* Destroying data structures */
 	queue_destroy(&q);
-	free(level);
+	free(mf.level);
 
-	return max_flow;
+	return mf.value;
 }
 
 void apply(Graph *g)
@@ -345,7 +353,7 @@ int main(void) {
 	/* Instancing Graph from input */
 	graph_new(&g, f+e+1, t);
 	graph_add_sources(&g, f); /* Adding capacity to each vertex */
-	graph_add_stops(&g, e);
+	graph_add_stops(&g, e, vertex_new(f));
 	graph_init(&g, t);
 
 	/* Apply this project's magic */
