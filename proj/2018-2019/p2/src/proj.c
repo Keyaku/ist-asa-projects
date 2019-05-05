@@ -162,20 +162,33 @@ void graph_init(Graph *g, int num_e)
 	}
 }
 
-void graph_add_weights(Graph *g)
+void graph_add_sources(Graph *g, int vertices)
 {
-	Vertex u;
-	/* Adding Vertex weights */
-	for (u = vertex_root(); vertex_iter(g, u); u = vertex_next(u)) {
+	Vertex u = source, v;
+	int i;
+
+	/* Adding Vertex capacity */
+	for (i = 0, v = vertex_next(sink); i < vertices; v = vertex_next(v), i++) {
 		int num;
 		Edge e;
 
-		if (u == sink) continue;
+		if (v == sink) continue;
 
 		/* Adding source Edge to Graph */
-		e = graph_connect(g, source, u);
+		e = graph_connect(g, u, v);
 		get_number(&num);
 		g->capacity[e] = num;
+	}
+}
+
+void graph_add_stops(Graph *g, int vertices)
+{
+	int i;
+
+	for (i = 0; i < vertices; i++) {
+		int num;
+		get_number(&num);
+		// TODO: something
 	}
 }
 
@@ -208,19 +221,6 @@ void graph_destroy(Graph *g)
 
 	free(g->flow);     g->flow      = NULL;
 	free(g->capacity); g->capacity  = NULL;
-}
-
-void graph_reverse(Graph *g)
-{
-	Vertex u;
-	for (u = source; vertex_iter(g, u); u = vertex_next(u)) {
-		Edge adj;
-
-		for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
-			Vertex v = g->vertex[adj];
-			g->prev[adj] = graph_connect(g, v, u);
-		}
-	}
 }
 
 /*************************** Special structure ********************************/
@@ -344,9 +344,9 @@ int main(void) {
 
 	/* Instancing Graph from input */
 	graph_new(&g, f+e+1, t);
-	graph_add_weights(&g); /* Adding weights to each vertex */
+	graph_add_sources(&g, f); /* Adding capacity to each vertex */
+	graph_add_stops(&g, e);
 	graph_init(&g, t);
-	/* graph_reverse(&g); */
 
 	/* Apply this project's magic */
 	apply(&g);
