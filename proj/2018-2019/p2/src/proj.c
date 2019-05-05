@@ -268,7 +268,7 @@ int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 
 		if (mf->level[v] == mf->level[u]+1 && g->flow[adj] < cap) {
 			int curr_flow = min(flow, cap - g->flow[adj]);
-			int temp_flow = send_flow(g, v, curr_flow, mf->level);
+			int temp_flow = send_flow(g, v, curr_flow, mf);
 
 			if (temp_flow > 0) {
 				Edge radj = g->prev[adj];
