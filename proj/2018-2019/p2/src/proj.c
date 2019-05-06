@@ -134,6 +134,7 @@ void graph_add_edge(Graph *g, Vertex u, Vertex v)
 	get_number(&num);
 	if (g->v_minimum[u] > 0) {
 		g->capacity[e] = min(num, g->v_minimum[u]);
+		if (g->capacity[e] != g->v_minimum[u]) g->v_minimum[u] = 0;
 	} else {
 		g->capacity[e] = num;
 	}
