@@ -219,6 +219,7 @@ void graph_destroy(Graph *g)
 {
 	free(g->first);   g->first   = NULL;
 	free(g->vertex);  g->vertex  = NULL;
+	free(g->next);    g->next    = NULL;
 	free(g->prev);    g->prev    = NULL;
 
 	free(g->flow);      g->flow      = NULL;
