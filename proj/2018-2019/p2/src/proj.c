@@ -226,10 +226,51 @@ void graph_destroy(Graph *g)
 /*************************** Special structure ********************************/
 typedef struct {
 	int value;
-	Queue *q;
+	Queue q_data, *q;
+	Queue q_stations, *stations;
 	int *level;
 } MaxFlow;
 
+void maxflow_new(MaxFlow *mf, Graph *g)
+{
+	mf->value = 0;
+	mf->level = malloc((g->nr_vertices+1) * sizeof(*mf->level));
+
+	mf->q = &mf->q_data;
+	mf->stations = &mf->q_stations;
+	queue_new(mf->q, g->nr_vertices+1, true);
+	queue_new(mf->stations, g->nr_vertices+1, true);
+}
+
+void maxflow_output(MaxFlow *mf)
+{
+	int i, size;
+
+	printf("%d\n", mf->value);
+
+	size = queue_size(mf->stations);
+	for (i = 0; i < size; i++) {
+		Vertex u = queue_pop(mf->stations);
+		printf("%d", u);
+		if (i+1 < size) printf(" ");
+	} printf("\n");
+
+	for (i = 0; i < 0; i++) {
+		/* TODO: print sequence of src-dst vertices that need augmenting */
+	}
+
+}
+
+void maxflow_destroy(MaxFlow *mf)
+{
+	free(mf->level); mf->level = NULL;
+
+	queue_destroy(mf->q); mf->q = NULL;
+	queue_destroy(mf->stations); mf->stations = NULL;
+}
+
+
+/* Algorithm code */
 bool bfs(Graph *g, MaxFlow *mf)
 {
 	/* Resetting data */
@@ -286,60 +327,29 @@ int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 	return 0;
 }
 
-int dinic(Graph *g)
+int dinic(Graph *g, MaxFlow *mf)
 {
-	MaxFlow mf;
-	Queue q;
-
 	if (source == sink) return -1;
 
-	/* Initializing data structures */
-	mf.value = 0;
-	mf.q = &q;
-	mf.level = malloc((g->nr_vertices+1) * sizeof(*mf.level));
-	queue_new(&q, g->nr_vertices+1, true);
-
 	/* Running algorithms */
-	while (bfs(g, &mf)) {
+	while (bfs(g, mf)) {
 		int flow;
-		while ((flow = send_flow(g, source, __INT_MAX__, &mf))) {
-			mf.value += flow;
+		while ((flow = send_flow(g, source, __INT_MAX__, mf))) {
+			mf->value += flow;
 		}
 	}
 
-	/* Destroying data structures */
-	queue_destroy(&q);
-	free(mf.level);
-
-	return mf.value;
+	return mf->value;
 }
 
 void apply(Graph *g)
 {
-	int i, size;
-	int max_flow = -1;
-	Queue stations;
+	MaxFlow mf;
 
-	/* Initializing data */
-
-	/* Summoning algorithm */
-	max_flow = dinic(g);
-
-	/* Outputting */
-	printf("%d\n", max_flow);
-
-	size = 0;
-	for (i = 0; i < size; i++) {
-		Vertex u = queue_pop(&stations);
-		printf("%d", u);
-		if (i+1 < size) printf(" ");
-	} printf("\n");
-
-	for (i = 0; i < 0; i++) {
-		/* TODO: print sequence of src-dst vertices that need augmenting */
-	}
-
-	/* Destroying data */
+	maxflow_new(&mf, g);
+	dinic(g, &mf); /* Summoning algorithm */
+	maxflow_output(&mf);
+	maxflow_destroy(&mf);
 }
 
 /***************************** MAIN function **********************************/
