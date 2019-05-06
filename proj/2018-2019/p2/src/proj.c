@@ -223,9 +223,9 @@ void graph_destroy(Graph *g)
 /*************************** Special structure ********************************/
 typedef struct {
 	int value;
+	int *level;
 	Queue q_data, *q;
 	Queue q_stations, *stations;
-	int *level;
 } MaxFlow;
 
 void maxflow_new(MaxFlow *mf, Graph *g)
@@ -344,7 +344,7 @@ void apply(Graph *g)
 	MaxFlow mf;
 
 	maxflow_new(&mf, g);
-	dinic(g, &mf); /* Summoning algorithm */
+	dinic(g, &mf); /* Summoning algorithm Dinic, O(E V^2) */
 	maxflow_output(&mf);
 	maxflow_destroy(&mf);
 }
