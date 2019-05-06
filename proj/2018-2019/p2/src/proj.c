@@ -120,7 +120,7 @@ Edge graph_connect(Graph *g, Vertex u, Vertex v)
 			g->vertex[g->nr_edges--] = 0;
 			return adj;
 		}
-		g->next[adj] = g->nr_edges;
+		g->next[adj] = edge;
 	}
 
 	return edge;
