@@ -90,6 +90,7 @@ typedef struct graph {
 	/* Other data */
 	int *flow;       /* flow[Edge] */
 	int *capacity;   /* capacity[Edge] */
+	int *v_minimum;  /* v_minimum[Vertex] */
 
 } Graph;
 
@@ -131,7 +132,11 @@ void graph_add_edge(Graph *g, Vertex u, Vertex v)
 	int num;
 	Edge e = graph_connect(g, u, v);
 	get_number(&num);
-	g->capacity[e] = num;
+	if (g->v_minimum[u] > 0) {
+		g->capacity[e] = min(num, g->v_minimum[u]);
+	} else {
+		g->capacity[e] = num;
+	}
 }
 
 /* Creates a new Graph */
@@ -147,8 +152,9 @@ void graph_new(Graph *g, int num_v, int num_e)
 	g->next   = calloc((num_e+1), sizeof(*g->next));
 	g->prev   = calloc((num_e+1), sizeof(*g->prev));
 
-	g->flow     = calloc((num_e+1), sizeof(*g->flow));
-	g->capacity = calloc((num_e+1), sizeof(*g->capacity));
+	g->flow      = calloc((num_e+1), sizeof(*g->flow));
+	g->capacity  = calloc((num_e+1), sizeof(*g->capacity));
+	g->v_minimum = calloc((num_v+1), sizeof(*g->v_minimum));
 }
 
 /* Initializes Graph with input data */
@@ -185,7 +191,7 @@ void graph_add_stops(Graph *g, int vertices, Vertex v)
 	for (i = 0, v = vertex_next(v); i < vertices; v = vertex_next(v), i++) {
 		int num;
 		get_number(&num);
-		// TODO: something
+		g->v_minimum[v] = num;
 	}
 }
 
@@ -211,13 +217,13 @@ void graph_print(Graph *g)
 
 void graph_destroy(Graph *g)
 {
-	free(g->first);   g->first      = NULL;
-	free(g->vertex);  g->vertex     = NULL;
-	free(g->next);    g->next       = NULL;
-	free(g->prev);    g->prev       = NULL;
+	free(g->first);   g->first   = NULL;
+	free(g->vertex);  g->vertex  = NULL;
+	free(g->prev);    g->prev    = NULL;
 
-	free(g->flow);     g->flow      = NULL;
-	free(g->capacity); g->capacity  = NULL;
+	free(g->flow);      g->flow      = NULL;
+	free(g->capacity);  g->capacity  = NULL;
+	free(g->v_minimum); g->v_minimum = NULL;
 }
 
 /*************************** Special structure ********************************/
@@ -370,7 +376,7 @@ int main(void) {
 	/* Instancing Graph from input */
 	graph_new(&g, f+e+1, t);
 	graph_add_sources(&g, f); /* Adding capacity to each vertex */
-	graph_add_stops(&g, e, vertex_new(f));
+	graph_add_stops(&g, e, vertex_new(f+e));
 	graph_init(&g, t);
 
 	/* Apply this project's magic */
