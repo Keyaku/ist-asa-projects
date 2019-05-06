@@ -226,6 +226,7 @@ typedef struct {
 	int *level;
 	Queue q_data, *q;
 	Queue q_stations, *stations;
+	Queue q_edges, *edges;
 } MaxFlow;
 
 void maxflow_new(MaxFlow *mf, Graph *g)
@@ -235,16 +236,20 @@ void maxflow_new(MaxFlow *mf, Graph *g)
 
 	mf->q = &mf->q_data;
 	mf->stations = &mf->q_stations;
+	mf->edges = &mf->q_edges;
 	queue_new(mf->q, g->nr_vertices+1, true);
 	queue_new(mf->stations, g->nr_vertices+1, true);
+	queue_new(mf->edges, g->nr_vertices*2, false);
 }
 
 void maxflow_output(MaxFlow *mf)
 {
 	int i, size;
 
+	/* Printing Max Flow */
 	printf("%d\n", mf->value);
 
+	/* Printing Stations in need of augmenting */
 	size = queue_size(mf->stations);
 	for (i = 0; i < size; i++) {
 		Vertex u = queue_pop(mf->stations);
@@ -252,10 +257,14 @@ void maxflow_output(MaxFlow *mf)
 		if (i+1 < size) printf(" ");
 	} printf("\n");
 
-	for (i = 0; i < 0; i++) {
-		/* TODO: print sequence of src-dst vertices that need augmenting */
-	}
+	/* Printing Edges in need of augmenting (closest to sink) */
+	size = queue_size(mf->edges);
+	for (i = 0; i < size; i++) {
+		Vertex u = queue_pop(mf->edges);
+		Vertex v = queue_pop(mf->edges);
 
+		printf("%d %d\n", u, v);
+	}
 }
 
 void maxflow_destroy(MaxFlow *mf)
@@ -264,6 +273,7 @@ void maxflow_destroy(MaxFlow *mf)
 
 	queue_destroy(mf->q); mf->q = NULL;
 	queue_destroy(mf->stations); mf->stations = NULL;
+	queue_destroy(mf->edges); mf->edges = NULL;
 }
 
 
