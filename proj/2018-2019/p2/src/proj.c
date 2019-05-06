@@ -125,6 +125,15 @@ Edge graph_connect(Graph *g, Vertex u, Vertex v)
 	return edge;
 }
 
+/* Adds weighted Edge to Graph */
+void graph_add_edge(Graph *g, Vertex u, Vertex v)
+{
+	int num;
+	Edge e = graph_connect(g, u, v);
+	get_number(&num);
+	g->capacity[e] = num;
+}
+
 /* Creates a new Graph */
 void graph_new(Graph *g, int num_v, int num_e)
 {
@@ -148,17 +157,13 @@ void graph_init(Graph *g, int num_e)
 	while (num_e-- > 0) {
 		int num1, num2;
 		Vertex u, v;
-		Edge e;
 
 		/* Grab two numbers from input & convert them to Vertex */
 		get_2_numbers(&num1, &num2);
 		u = vertex_new(num1);
 		v = vertex_new(num2);
 
-		/* Adding Edge to Graph */
-		e = graph_connect(g, u, v);
-		get_number(&num1);
-		g->capacity[e] = num1;
+		graph_add_edge(g, u, v);
 	}
 }
 
@@ -169,15 +174,7 @@ void graph_add_sources(Graph *g, int vertices)
 
 	/* Adding Vertex capacity */
 	for (i = 0, v = vertex_next(sink); i < vertices; v = vertex_next(v), i++) {
-		int num;
-		Edge e;
-
-		if (v == sink) continue;
-
-		/* Adding source Edge to Graph */
-		e = graph_connect(g, u, v);
-		get_number(&num);
-		g->capacity[e] = num;
+		graph_add_edge(g, u, v);
 	}
 }
 
