@@ -176,7 +176,7 @@ void graph_init(Graph *g, int num_e)
 
 void graph_add_sources(Graph *g, int vertices, Vertex v)
 {
-	Vertex u = source, v;
+	Vertex u = source;
 	int i;
 
 	/* Adding Vertex capacity */
