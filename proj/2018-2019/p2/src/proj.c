@@ -85,7 +85,6 @@ typedef struct graph {
 	Edge   *first;    /* first[Vertex] = Edge   */
 	Vertex *vertex;   /* vertex[Edge]  = Vertex */
 	Edge   *next;     /* next[Edge]    = Edge   */
-	Edge   *prev;     /* prev[Edge]    = Edge   */
 
 	/* Other data */
 	int *flow;       /* flow[Edge] */
@@ -151,7 +150,6 @@ void graph_new(Graph *g, int num_v, int num_e)
 	g->first  = calloc((num_v+1), sizeof(*g->first));
 	g->vertex = calloc((num_e+1), sizeof(*g->vertex));
 	g->next   = calloc((num_e+1), sizeof(*g->next));
-	g->prev   = calloc((num_e+1), sizeof(*g->prev));
 
 	g->flow      = calloc((num_e+1), sizeof(*g->flow));
 	g->capacity  = calloc((num_e+1), sizeof(*g->capacity));
@@ -221,7 +219,6 @@ void graph_destroy(Graph *g)
 	free(g->first);   g->first   = NULL;
 	free(g->vertex);  g->vertex  = NULL;
 	free(g->next);    g->next    = NULL;
-	free(g->prev);    g->prev    = NULL;
 
 	free(g->flow);      g->flow      = NULL;
 	free(g->capacity);  g->capacity  = NULL;
@@ -327,13 +324,7 @@ int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 			int temp_flow = send_flow(g, v, curr_flow, mf);
 
 			if (temp_flow > 0) {
-				Edge radj = g->prev[adj];
-				/* add flow to current edge */
-				g->flow[adj]  += temp_flow;
-
-				/* subtract flow from prev edge of current edge */
-				g->flow[radj] -= temp_flow;
-
+				g->flow[adj]  += temp_flow; /* add flow to current edge */
 				return temp_flow;
 			}
 		}
