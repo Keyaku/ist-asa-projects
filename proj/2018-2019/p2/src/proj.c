@@ -315,14 +315,15 @@ int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 
 	for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
 		Vertex v = g->vertex[adj];
-		int cap = g->capacity[adj];
+		int cap = g->capacity[adj] - g->flow[adj];
 
-		if (mf->level[v] == mf->level[u]+1 && g->flow[adj] < cap) {
-			int curr_flow = min(flow, cap - g->flow[adj]);
+		if (mf->level[v] == mf->level[u]+1 && 0 < cap) {
+			int curr_flow = min(flow, cap);
 			int temp_flow = send_flow(g, v, curr_flow, mf);
 
 			if (temp_flow > 0) {
 				g->flow[adj] += temp_flow; /* add flow to current edge */
+				g->flow[0]   -= temp_flow;
 				return temp_flow;
 			}
 		}
@@ -333,8 +334,6 @@ int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 
 int dinic(Graph *g, MaxFlow *mf)
 {
-	if (source == sink) return -1;
-
 	/* Running algorithms */
 	while (bfs(g, mf)) {
 		int flow;
