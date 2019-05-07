@@ -174,13 +174,13 @@ void graph_init(Graph *g, int num_e)
 	}
 }
 
-void graph_add_sources(Graph *g, int vertices)
+void graph_add_sources(Graph *g, int vertices, Vertex v)
 {
 	Vertex u = source, v;
 	int i;
 
 	/* Adding Vertex capacity */
-	for (i = 0, v = vertex_next(sink); i < vertices; v = vertex_next(v), i++) {
+	for (i = 0, v = vertex_next(v); i < vertices; v = vertex_next(v), i++) {
 		graph_add_edge(g, u, v);
 	}
 }
@@ -377,7 +377,7 @@ int main(void) {
 
 	/* Instancing Graph from input */
 	graph_new(&g, f+e+1, t);
-	graph_add_sources(&g, f); /* Adding capacity to each vertex */
+	graph_add_sources(&g, f, sink); /* Adding capacity to each vertex */
 	graph_add_stops(&g, e, vertex_new(f+e));
 	graph_init(&g, t);
 
