@@ -145,8 +145,6 @@ void graph_new(Graph *g, int num_v, int num_e)
 	g->nr_vertices = num_v;
 	g->nr_edges    = 0;
 
-	num_e *= 2;
-
 	g->first  = calloc((num_v+1), sizeof(*g->first));
 	g->vertex = calloc((num_e+1), sizeof(*g->vertex));
 	g->next   = calloc((num_e+1), sizeof(*g->next));
