@@ -322,7 +322,7 @@ int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 			int temp_flow = send_flow(g, v, curr_flow, mf);
 
 			if (temp_flow > 0) {
-				g->flow[adj]  += temp_flow; /* add flow to current edge */
+				g->flow[adj] += temp_flow; /* add flow to current edge */
 				return temp_flow;
 			}
 		}
