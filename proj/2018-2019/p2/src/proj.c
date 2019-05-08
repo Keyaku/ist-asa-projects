@@ -131,12 +131,7 @@ void graph_add_edge(Graph *g, Vertex u, Vertex v)
 	int num;
 	Edge e = graph_connect(g, u, v);
 	get_number(&num);
-	if (g->v_minimum[u] > 0) {
-		g->capacity[e] = min(num, g->v_minimum[u]);
-		if (g->capacity[e] != g->v_minimum[u]) g->v_minimum[u] = 0;
-	} else {
-		g->capacity[e] = num;
-	}
+	g->capacity[e] = num;
 }
 
 /* Creates a new Graph */
@@ -232,17 +227,17 @@ typedef struct {
 	Queue q_edges, *edges;
 } MaxFlow;
 
-void maxflow_new(MaxFlow *mf, Graph *g)
+void maxflow_new(MaxFlow *mf, int size)
 {
 	mf->value = 0;
-	mf->level = malloc((g->nr_vertices+1) * sizeof(*mf->level));
+	mf->level = malloc(size * sizeof(*mf->level));
 
 	mf->q = &mf->q_data;
 	mf->stations = &mf->q_stations;
 	mf->edges = &mf->q_edges;
-	queue_new(mf->q, g->nr_vertices+1, true);
-	queue_new(mf->stations, g->nr_vertices+1, true);
-	queue_new(mf->edges, g->nr_vertices*2, false);
+	queue_new(mf->q, size, true);
+	queue_new(mf->stations, size, true);
+	queue_new(mf->edges, size*2, false);
 }
 
 void maxflow_output(MaxFlow *mf)
@@ -296,7 +291,9 @@ bool bfs(Graph *g, MaxFlow *mf)
 
 		for (adj = g->first[u]; adj > 0; adj = g->next[adj]) {
 			Vertex v = g->vertex[adj];
-			int cap = g->capacity[adj] - g->flow[adj];
+			int cap = g->capacity[adj];
+			if (g->v_minimum[u] != 0) cap = min(g->capacity[adj], g->v_minimum[u]);
+			cap -= g->flow[adj];
 
 			if (mf->level[v] < 0 && 0 < cap) {
 				mf->level[v] = mf->level[u] + 1;
@@ -316,7 +313,9 @@ int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 
 	for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
 		Vertex v = g->vertex[adj];
-		int cap = g->capacity[adj] - g->flow[adj];
+		int cap = g->capacity[adj];
+		if (g->v_minimum[u] != 0) cap = min(g->capacity[adj], g->v_minimum[u]);
+		cap -= g->flow[adj];
 
 		if (mf->level[v] == mf->level[u]+1 && 0 < cap) {
 			int curr_flow = min(flow, cap);
@@ -349,7 +348,7 @@ void apply(Graph *g)
 {
 	MaxFlow mf;
 
-	maxflow_new(&mf, g);
+	maxflow_new(&mf, g->nr_vertices+1);
 	dinic(g, &mf); /* Summoning algorithm Dinic, O(E V^2) */
 	maxflow_output(&mf);
 	maxflow_destroy(&mf);
