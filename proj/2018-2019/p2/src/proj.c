@@ -296,8 +296,9 @@ bool bfs(Graph *g, MaxFlow *mf)
 
 		for (adj = g->first[u]; adj > 0; adj = g->next[adj]) {
 			Vertex v = g->vertex[adj];
+			int cap = g->capacity[adj] - g->flow[adj];
 
-			if (mf->level[v] < 0 && g->flow[adj] < g->capacity[adj]) {
+			if (mf->level[v] < 0 && 0 < cap) {
 				mf->level[v] = mf->level[u] + 1;
 				queue_push(mf->q, v);
 			}
@@ -323,7 +324,6 @@ int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 
 			if (temp_flow > 0) {
 				g->flow[adj] += temp_flow; /* add flow to current edge */
-				g->flow[0]   -= temp_flow;
 				return temp_flow;
 			}
 		}
