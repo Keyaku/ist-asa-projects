@@ -104,9 +104,9 @@ typedef struct graph {
 /* Finds a specified Edge. Returns 0 if not found */
 Edge graph_find_edge(Graph *g, Vertex u, Vertex v)
 {
-	Edge edge;
-	for (edge = g->first[u]; g->next[edge] != 0 && g->vertex[edge] != v; edge = g->next[edge]);
-	return edge;
+	Edge e = g->first[u];
+	while (g->next[e] != 0 && g->vertex[e] != v) e = g->next[e];
+	return e;
 }
 
 /* Connects two Vertices */
