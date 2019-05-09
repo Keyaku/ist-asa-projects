@@ -32,6 +32,7 @@ typedef int Vertex;
 #define vertex_end(GRAPH) GRAPH->nr_vertices
 #define vertex_iter(GRAPH, a) a <= vertex_end(GRAPH)
 
+#define vertex_nil  -1
 #define source 0
 #define sink   1
 
@@ -101,7 +102,7 @@ typedef struct graph {
 } Graph;
 
 
-/* Finds a specified Edge. Returns 0 if not found */
+/* Finds a specified Edge. */
 Edge graph_find_edge(Graph *g, Vertex u, Vertex v)
 {
 	Edge e = g->first[u];
@@ -121,7 +122,7 @@ Edge graph_connect(Graph *g, Vertex u, Vertex v)
 		Edge adj = graph_find_edge(g, u, v);
 		/* if Vertex v is already in here, stop everything */
 		if (g->vertex[adj] == v) {
-			g->vertex[g->nr_edges--] = 0;
+			g->vertex[g->nr_edges--] = vertex_nil;
 			return adj;
 		}
 		g->next[adj] = edge;
@@ -146,7 +147,8 @@ void graph_new(Graph *g, int num_v, int num_e)
 	g->nr_edges    = 0;
 
 	g->first  = calloc((num_v+1), sizeof(*g->first));
-	g->vertex = calloc((num_e+1), sizeof(*g->vertex));
+	g->vertex = malloc((num_e+1)* sizeof(*g->vertex));
+	memset(g->vertex, vertex_nil, (num_e+1)*sizeof(*g->vertex));
 	g->next   = calloc((num_e+1), sizeof(*g->next));
 
 	g->flow      = calloc((num_e+1), sizeof(*g->flow));
@@ -363,7 +365,7 @@ int main(void) {
 	get_3_numbers(&f, &e, &t);
 
 	/* Instancing Graph from input */
-	graph_new(&g, f+e+1, t);
+	graph_new(&g, f+e+1, f+t);
 	graph_add_sources(&g, f, sink); /* Adding capacity to each vertex */
 	graph_add_stops(&g, e, vertex_new(f+e));
 	graph_init(&g, t);
