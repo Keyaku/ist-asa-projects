@@ -32,6 +32,13 @@ typedef int Vertex;
 #define vertex_end(GRAPH) GRAPH->nr_vertices
 #define vertex_iter(GRAPH, a) a <= vertex_end(GRAPH)
 
+#define source 0
+#define sink   1
+
+void vertex_print(Vertex u) {
+	u == source ? printf("s") : u == sink ? printf("t") : printf("%d", u);
+}
+
 int cmp_vertex(const void *a, const void *b) {
 	return ( *(const Vertex*)b - *(const Vertex*)a );
 }
@@ -93,8 +100,6 @@ typedef struct graph {
 
 } Graph;
 
-#define source 0
-#define sink   1
 
 /* Finds a specified Edge. Returns 0 if not found */
 Edge graph_find_edge(Graph *g, Vertex u, Vertex v)
@@ -189,20 +194,15 @@ void graph_add_stops(Graph *g, int vertices, Vertex v)
 
 void graph_print(Graph *g)
 {
-	Vertex u;
-	for (u = source; vertex_iter(g, u); u = vertex_next(u)) {
-		Edge adj;
+	Vertex u; Edge adj;
 
-		for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
-			Vertex v = g->vertex[adj];
-
-			if (g->capacity[adj] > 0) {
-				u == source ? printf("s") : u == sink ? printf("t") : printf("%d", u);
-				printf(" -- %3d --> ", g->capacity[adj]);
-				v == source ? printf("s") : v == sink ? printf("t") : printf("%d", v);
-				printf("\n");
-			}
-		}
+	for (u = source; vertex_iter(g, u); u = vertex_next(u))
+	for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
+		Vertex v = g->vertex[adj];
+		vertex_print(u);
+		printf(" -- %3d --> ", g->capacity[adj]);
+		vertex_print(v);
+		printf("\n");
 	}
 
 }
