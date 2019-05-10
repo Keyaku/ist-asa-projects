@@ -277,8 +277,38 @@ void maxflow_destroy(MaxFlow *mf)
 }
 
 
-/* Algorithm code */
-bool bfs(Graph *g, MaxFlow *mf)
+/* BFS material */
+bool bfs_minimum_cut(Graph *g, MaxFlow *mf)
+{
+	/* Resetting data */
+	queue_reset(mf->q);
+
+	/* Adding source to Queue */
+	queue_push(mf->q, source);
+
+	while (!queue_is_empty(mf->q)) {
+		Edge adj;
+		Vertex u = queue_pop(mf->q);
+
+		for (adj = g->first[u]; adj > 0; adj = g->next[adj]) {
+			Vertex v = g->vertex[adj];
+			int cap = g->capacity[adj];
+			int flow = g->flow[adj];
+
+			if (flow) {
+				queue_push(mf->q, v);
+
+				if (g->v_minimum[u] != 0) {
+					queue_push(mf->stations, u);
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool bfs_update_level(Graph *g, MaxFlow *mf)
 {
 	/* Resetting data */
 	queue_reset(mf->q);
@@ -293,8 +323,8 @@ bool bfs(Graph *g, MaxFlow *mf)
 
 		for (adj = g->first[u]; adj > 0; adj = g->next[adj]) {
 			Vertex v = g->vertex[adj];
-			int cap = g->capacity[adj];
-			if (g->v_minimum[u] != 0) cap = min(g->capacity[adj], g->v_minimum[u]);
+
+			int cap = (g->v_minimum[u] != 0) ? min(g->v_minimum[u], g->capacity[adj]) : g->capacity[adj];
 			cap -= g->flow[adj];
 
 			if (mf->level[v] < 0 && 0 < cap) {
@@ -307,6 +337,7 @@ bool bfs(Graph *g, MaxFlow *mf)
 	return mf->level[sink] >= 0;
 }
 
+/* Algorithm code */
 int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 {
 	Edge adj;
@@ -315,8 +346,8 @@ int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 
 	for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
 		Vertex v = g->vertex[adj];
-		int cap = g->capacity[adj];
-		if (g->v_minimum[u] != 0) cap = min(g->capacity[adj], g->v_minimum[u]);
+
+		int cap = (g->v_minimum[u] != 0) ? min(g->v_minimum[u], g->capacity[adj]) : g->capacity[adj];
 		cap -= g->flow[adj];
 
 		if (mf->level[v] == mf->level[u]+1 && 0 < cap) {
@@ -336,12 +367,14 @@ int send_flow(Graph *g, Vertex u, int flow, MaxFlow *mf)
 int dinic(Graph *g, MaxFlow *mf)
 {
 	/* Running algorithms */
-	while (bfs(g, mf)) {
+	while (bfs_update_level(g, mf)) {
 		int flow;
 		while ((flow = send_flow(g, source, __INT_MAX__, mf))) {
 			mf->value += flow;
 		}
 	}
+
+	bfs_minimum_cut(g, mf);
 
 	return mf->value;
 }
