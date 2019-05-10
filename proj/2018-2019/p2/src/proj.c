@@ -400,7 +400,7 @@ int main(void) {
 	/* Instancing Graph from input */
 	graph_new(&g, f+e+1, f+t);
 	graph_add_sources(&g, f, sink); /* Adding capacity to each vertex */
-	graph_add_stops(&g, e, vertex_new(f+e));
+	graph_add_stops(&g, e, vertex_new(f+1));
 	graph_init(&g, t);
 
 	/* Apply this project's magic */
