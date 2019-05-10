@@ -296,10 +296,10 @@ bool bfs_minimum_cut(Graph *g, MaxFlow *mf)
 			int flow = g->flow[adj];
 
 			if (flow) {
-				queue_push(mf->q, v);
+				if (!queue_in_queue(mf->q, v)) queue_push(mf->q, v);
 
-				if (g->v_minimum[u] != 0) {
-					queue_push(mf->stations, u);
+				if (g->v_minimum[u] != 0 && g->v_minimum[u] < cap) {
+					if (!queue_in_queue(mf->q, u)) queue_push(mf->stations, u);
 				}
 			}
 		}
