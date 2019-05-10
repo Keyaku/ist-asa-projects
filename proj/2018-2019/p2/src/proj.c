@@ -299,7 +299,7 @@ bool bfs_minimum_cut(Graph *g, MaxFlow *mf)
 				if (!queue_in_queue(mf->q, v)) queue_push(mf->q, v);
 
 				if (g->v_minimum[u] != 0 && g->v_minimum[u] < cap) {
-					if (!queue_in_queue(mf->q, u)) queue_push(mf->stations, u);
+					if (!queue_in_queue(mf->stations, u)) queue_push(mf->stations, u);
 				}
 			}
 		}
