@@ -55,8 +55,8 @@ typedef struct queue {
 } Queue;
 
 void queue_new(Queue *q, size_t size, bool refcount) {
-	q->data     = malloc(size * sizeof(*q->data));
-	q->in_queue = refcount ? calloc(size, sizeof(*q->in_queue)) : NULL;
+	q->data     = malloc((size+1) * sizeof(*q->data));
+	q->in_queue = refcount ? calloc((size+1), sizeof(*q->in_queue)) : NULL;
 	q->front = q->rear = 0;
 }
 void queue_destroy(Queue *q) {
