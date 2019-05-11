@@ -254,7 +254,6 @@ void graph_destroy(Graph *g)
 typedef struct {
 	int value;
 	int *level;
-	bool *full;
 	Queue q_data, *q;
 	Queue q_stations, *stations;
 	Queue q_edges, *edges;
@@ -264,7 +263,6 @@ void maxflow_new(MaxFlow *mf, Graph *g)
 {
 	mf->value = 0;
 	mf->level = malloc((g->nr_vertices+1) * sizeof(*mf->level));
-	mf->full = calloc((g->nr_vertices+1), sizeof(*mf->full));
 
 	mf->q = &mf->q_data;
 	mf->stations = &mf->q_stations;
@@ -322,7 +320,6 @@ void maxflow_output(MaxFlow *mf, Graph *g)
 void maxflow_destroy(MaxFlow *mf)
 {
 	free(mf->level); mf->level = NULL;
-	free(mf->full); mf->full = NULL;
 
 	queue_destroy(mf->q); mf->q = NULL;
 	queue_destroy(mf->stations); mf->stations = NULL;
@@ -333,13 +330,12 @@ void maxflow_destroy(MaxFlow *mf)
 /* BFS material */
 bool bfs_minimum_cut(Graph *g, MaxFlow *mf, Vertex start)
 {
-	bool res = false;
+	int max_flow = 0;
 	/* Resetting data */
 	queue_reset(mf->q);
 
 	/* Adding start to Queue */
 	queue_push(mf->q, start);
-	if (start == sink) res = true;
 
 	while (!queue_is_empty(mf->q)) {
 		Edge adj;
@@ -347,48 +343,32 @@ bool bfs_minimum_cut(Graph *g, MaxFlow *mf, Vertex start)
 
 		for (adj = g->first[u]; adj > 0; adj = g->next[adj]) {
 			Vertex v = g->vertex[adj];
-			Edge e;
+			Edge e = g->prev[adj];
 			int cap, flow;
 
-			/* Ignore regular adjacencies */
-			if (res && adj % 2 == 0) {
-				e = g->prev[adj];
-			} else if (!res && adj % 2 == 1) {
-				e = adj;
-			} else continue;
-
+			if (adj % 2 != 0) continue; /* Ignore regular adjacencies */
 			cap = g->capacity[e];
 			flow = g->flow[e];
 
-			if (!res) {
-				if (mf->full[u]) {
-					if (flow == cap) {
-						queue_push(mf->edges, g->prev[adj]);
-					} else if (flow == g->v_minimum[u]) {
-						queue_push(mf->stations, u);
-					}
-					printf("%d - %d\n", u, v);
-				}
-				else {
+			if (flow) {
+				if (flow == cap) {
+					queue_push(mf->edges, adj);
+					max_flow += flow;
+				} else if (flow == g->v_minimum[v]) {
+					queue_push(mf->stations, v);
+					max_flow += flow;
+				} else {
 					queue_push(mf->q, v);
 				}
 			}
 
-			else if (flow) {
-				if (flow == cap) {
-					mf->full[v] = true;
-				} else if (flow == g->v_minimum[v]) {
-					mf->full[v] = true;
-					queue_push(mf->stations, v);
-				}
-				else {
-					queue_push(mf->q, v);
-				}
-			}
+			/* Checking if max flow was hit */
+			if (max_flow == mf->value) return true;
 		}
 	}
 
-	return false;
+	if (max_flow != mf->value) queue_reset(mf->edges);
+	return max_flow == mf->value;
 }
 
 bool bfs_update_level(Graph *g, MaxFlow *mf)
@@ -461,7 +441,6 @@ int dinic(Graph *g, MaxFlow *mf)
 	}
 
 	bfs_minimum_cut(g, mf, sink);
-	bfs_minimum_cut(g, mf, source);
 
 	return mf->value;
 }
