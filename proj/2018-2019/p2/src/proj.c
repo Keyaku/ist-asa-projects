@@ -82,6 +82,10 @@ void queue_reset(Queue *q) {
 	if (q->in_queue) { memset(q->in_queue, false, (q->rear) * sizeof(*q->in_queue)); }
 	q->front = q->rear = 0;
 }
+void queue_sort(Queue *q) {
+	int size = queue_size(q);
+	qsort(q->data, size, sizeof(*q->data), cmp_vertex);
+}
 
 /*************************** Weighted Graph structure **************************/
 typedef struct graph {
@@ -271,12 +275,14 @@ void maxflow_new(MaxFlow *mf, Graph *g)
 void maxflow_output(MaxFlow *mf, Graph *g)
 {
 	int i, size;
+	Vertex *edges[2];
 
 	/* Printing Max Flow */
 	printf("%d\n", mf->value);
 
 	/* Printing Stations in need of augmenting */
 	size = queue_size(mf->stations);
+	queue_sort(mf->stations);
 	for (i = 0; i < size; i++) {
 		Vertex u = queue_pop(mf->stations);
 		printf("%d", u);
@@ -285,14 +291,30 @@ void maxflow_output(MaxFlow *mf, Graph *g)
 
 	/* Printing Edges in need of augmenting (closest to sink) */
 	size = queue_size(mf->edges);
+	edges[0] = calloc(size, sizeof(*edges[0]));
+	edges[1] = calloc(size, sizeof(*edges[1]));
+
 	for (i = 0; i < size; i++) {
 		Vertex u, v;
 		Edge e = queue_pop(mf->edges);
 		graph_find_vertices(g, &u, &v, e);
 
+		edges[0][i] = u;
+		edges[1][i] = v;
+	}
+
+	qsort(edges[0], size, sizeof(*edges[0]), cmp_vertex);
+	qsort(edges[1], size, sizeof(*edges[0]), cmp_vertex);
+
+	for (i = 0; i < size; i++) {
+		Vertex u = edges[0][i],
+			v = edges[1][i];
+
 		if (u == source) continue;
 		printf("%d %d\n", u, v);
 	}
+
+	free(edges[0]); free(edges[1]);
 }
 
 void maxflow_destroy(MaxFlow *mf)
