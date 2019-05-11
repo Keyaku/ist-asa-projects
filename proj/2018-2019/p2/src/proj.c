@@ -64,7 +64,9 @@ void queue_destroy(Queue *q) {
 	free(q->in_queue); q->in_queue = NULL;
 }
 
+bool queue_in_queue(Queue *q, Vertex u) { return q->in_queue ? q->in_queue[u] : false; }
 void queue_push(Queue *q, Vertex u) {
+	if (queue_in_queue(q, u)) { return; }
 	q->data[q->rear++] = u;
 	if (q->in_queue) { q->in_queue[u] = true; }
 }
@@ -75,7 +77,6 @@ Vertex queue_pop(Queue *q) {
 }
 
 int queue_size(Queue *q) { return q->rear - q->front; }
-bool queue_in_queue(Queue *q, Vertex u) { return q->in_queue ? q->in_queue[u] : false; }
 bool queue_is_empty(Queue *q) { return q->front == q->rear; }
 void queue_reset(Queue *q) {
 	if (q->in_queue) { memset(q->in_queue, false, (q->rear) * sizeof(*q->in_queue)); }
@@ -323,14 +324,14 @@ bool bfs_minimum_cut(Graph *g, MaxFlow *mf)
 			flow = g->flow[e];
 
 			if (flow) {
-				if (!queue_in_queue(mf->q, v)) queue_push(mf->q, v);
-
 				if (flow == cap) {
 					queue_push(mf->edges, adj);
 					max_flow += flow;
 				} else if (flow == g->v_minimum[v]) {
-					if (!queue_in_queue(mf->stations, v)) queue_push(mf->stations, v);
+					queue_push(mf->stations, v);
 					max_flow += flow;
+				} else {
+					queue_push(mf->q, v);
 				}
 			}
 
