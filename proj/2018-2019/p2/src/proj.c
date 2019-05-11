@@ -409,7 +409,7 @@ void apply(Graph *g)
 
 	maxflow_new(&mf, g);
 	dinic(g, &mf); /* Summoning algorithm Dinic, O(E V^2) */
-	maxflow_output(&mf, &g);
+	maxflow_output(&mf, g);
 	maxflow_destroy(&mf);
 }
 
