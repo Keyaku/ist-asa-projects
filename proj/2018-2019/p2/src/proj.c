@@ -93,6 +93,7 @@ typedef struct graph {
 	Edge   *first;    /* first[Vertex] = Edge   */
 	Vertex *vertex;   /* vertex[Edge]  = Vertex */
 	Edge   *next;     /* next[Edge]    = Edge   */
+	Edge   *prev;     /* prev[Edge]    = Edge   */
 
 	/* Other data */
 	int *flow;       /* flow[Edge] */
@@ -145,6 +146,7 @@ void graph_add_edge(Graph *g, Vertex u, Vertex v)
 	Edge e = graph_connect(g, u, v);
 	get_number(&num);
 	g->capacity[e] = num;
+	g->prev[e] = graph_connect(g, v, u);
 }
 
 /* Creates a new Graph */
@@ -153,10 +155,13 @@ void graph_new(Graph *g, int num_v, int num_e)
 	g->nr_vertices = num_v;
 	g->nr_edges    = 0;
 
+	num_e *= 2;
+
 	g->first  = calloc((num_v+1), sizeof(*g->first));
 	g->vertex = malloc((num_e+1)* sizeof(*g->vertex));
 	memset(g->vertex, vertex_nil, (num_e+1)*sizeof(*g->vertex));
 	g->next   = calloc((num_e+1), sizeof(*g->next));
+	g->prev   = calloc((num_e+1), sizeof(*g->prev));
 
 	g->flow      = calloc((num_e+1), sizeof(*g->flow));
 	g->capacity  = calloc((num_e+1), sizeof(*g->capacity));
@@ -221,6 +226,7 @@ void graph_destroy(Graph *g)
 	free(g->first);   g->first   = NULL;
 	free(g->vertex);  g->vertex  = NULL;
 	free(g->next);    g->next    = NULL;
+	free(g->prev);    g->prev    = NULL;
 
 	free(g->flow);      g->flow      = NULL;
 	free(g->capacity);  g->capacity  = NULL;
