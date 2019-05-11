@@ -221,6 +221,7 @@ void graph_print(Graph *g)
 	for (u = source; vertex_iter(g, u); u = vertex_next(u))
 	for (adj = g->first[u]; adj != 0; adj = g->next[adj]) {
 		Vertex v = g->vertex[adj];
+		if (adj % 2 == 0) continue;
 		vertex_print(u);
 		printf(" -- %3d --> ", g->capacity[adj]);
 		vertex_print(v);
