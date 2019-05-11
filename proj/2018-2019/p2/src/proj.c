@@ -329,6 +329,7 @@ bool bfs_update_level(Graph *g, MaxFlow *mf)
 
 	/* Adding source to Queue */
 	queue_push(mf->q, source);
+	mf->level[source] = 0;
 
 	while (!queue_is_empty(mf->q)) {
 		Edge adj;
