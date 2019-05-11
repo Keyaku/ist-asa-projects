@@ -103,10 +103,17 @@ typedef struct graph {
 
 
 /* Finds a specified Edge. */
-Edge graph_find_edge(Graph *g, Vertex u, Vertex v)
+Edge graph_find_next_edge(Graph *g, Vertex u, Vertex v)
 {
 	Edge e = g->first[u];
 	while (g->next[e] != 0 && g->vertex[e] != v) e = g->next[e];
+	return e;
+}
+
+Edge graph_find_edge(Graph *g, Vertex u, Vertex v)
+{
+	Edge e = g->first[u];
+	while (e != 0 && g->vertex[e] != v) e = g->next[e];
 	return e;
 }
 
@@ -119,7 +126,7 @@ Edge graph_connect(Graph *g, Vertex u, Vertex v)
 	if (g->first[u] == 0) {
 		g->first[u] = edge;
 	} else {
-		Edge adj = graph_find_edge(g, u, v);
+		Edge adj = graph_find_next_edge(g, u, v);
 		/* if Vertex v is already in here, stop everything */
 		if (g->vertex[adj] == v) {
 			g->vertex[g->nr_edges--] = vertex_nil;
