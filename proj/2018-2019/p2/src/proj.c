@@ -41,7 +41,7 @@ void vertex_print(Vertex u) {
 }
 
 int cmp_vertex(const void *a, const void *b) {
-	return ( *(const Vertex*)b - *(const Vertex*)a );
+	return ( *(const Vertex*)a - *(const Vertex*)b );
 }
 
 /******************************* Edge structure ********************************/
