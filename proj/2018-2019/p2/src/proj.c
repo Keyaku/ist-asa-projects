@@ -276,6 +276,7 @@ void maxflow_output(MaxFlow *mf)
 		Vertex u = queue_pop(mf->edges);
 		Vertex v = queue_pop(mf->edges);
 
+		if (u == source) continue;
 		printf("%d %d\n", u, v);
 	}
 }
