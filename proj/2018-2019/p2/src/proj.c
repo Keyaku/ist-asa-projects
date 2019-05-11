@@ -125,8 +125,8 @@ Edge graph_find_edge(Graph *g, Vertex u, Vertex v)
 
 void graph_find_vertices(Graph *g, Vertex *u, Vertex *v, Edge e)
 {
-	*u = g->vertex[e];
-	*v = g->vertex[g->prev[e]];
+	if (u) *u = g->vertex[e];
+	if (v) *v = g->vertex[g->prev[e]];
 }
 
 /* Connects two Vertices */
