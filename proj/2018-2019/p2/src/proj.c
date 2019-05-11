@@ -118,6 +118,12 @@ Edge graph_find_edge(Graph *g, Vertex u, Vertex v)
 	return e;
 }
 
+void graph_find_vertices(Graph *g, Vertex *u, Vertex *v, Edge e)
+{
+	*u = g->vertex[e];
+	*v = g->vertex[g->prev[e]];
+}
+
 /* Connects two Vertices */
 Edge graph_connect(Graph *g, Vertex u, Vertex v)
 {
@@ -242,17 +248,17 @@ typedef struct {
 	Queue q_edges, *edges;
 } MaxFlow;
 
-void maxflow_new(MaxFlow *mf, int size)
+void maxflow_new(MaxFlow *mf, Graph *g)
 {
 	mf->value = 0;
-	mf->level = malloc(size * sizeof(*mf->level));
+	mf->level = malloc((g->nr_vertices+1) * sizeof(*mf->level));
 
 	mf->q = &mf->q_data;
 	mf->stations = &mf->q_stations;
 	mf->edges = &mf->q_edges;
-	queue_new(mf->q, size, true);
-	queue_new(mf->stations, size, true);
-	queue_new(mf->edges, size*2, false);
+	queue_new(mf->q, (g->nr_vertices+1), true);
+	queue_new(mf->stations, (g->nr_vertices+1), true);
+	queue_new(mf->edges, (g->nr_edges+1), true);
 }
 
 void maxflow_output(MaxFlow *mf)
@@ -273,8 +279,9 @@ void maxflow_output(MaxFlow *mf)
 	/* Printing Edges in need of augmenting (closest to sink) */
 	size = queue_size(mf->edges);
 	for (i = 0; i < size; i++) {
-		Vertex u = queue_pop(mf->edges);
-		Vertex v = queue_pop(mf->edges);
+		Vertex u, v;
+		Edge e = queue_pop(mf->edges);
+		graph_find_vertices(g, &u, &v, e);
 
 		if (u == source) continue;
 		printf("%d %d\n", u, v);
@@ -400,7 +407,7 @@ void apply(Graph *g)
 {
 	MaxFlow mf;
 
-	maxflow_new(&mf, g->nr_vertices+1);
+	maxflow_new(&mf, g);
 	dinic(g, &mf); /* Summoning algorithm Dinic, O(E V^2) */
 	maxflow_output(&mf);
 	maxflow_destroy(&mf);
