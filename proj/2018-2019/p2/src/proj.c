@@ -153,6 +153,7 @@ void graph_add_edge(Graph *g, Vertex u, Vertex v)
 	get_number(&num);
 	g->capacity[e] = num;
 	g->prev[e] = graph_connect(g, v, u);
+	g->prev[g->prev[e]] = e;
 }
 
 /* Creates a new Graph */
