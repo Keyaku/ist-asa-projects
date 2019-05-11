@@ -306,14 +306,14 @@ void maxflow_destroy(MaxFlow *mf)
 
 
 /* BFS material */
-bool bfs_minimum_cut(Graph *g, MaxFlow *mf)
+bool bfs_minimum_cut(Graph *g, MaxFlow *mf, Vertex start)
 {
 	int max_flow = 0;
 	/* Resetting data */
 	queue_reset(mf->q);
 
-	/* Adding sink to Queue */
-	queue_push(mf->q, sink);
+	/* Adding start to Queue */
+	queue_push(mf->q, start);
 
 	while (!queue_is_empty(mf->q)) {
 		Edge adj;
@@ -418,7 +418,7 @@ int dinic(Graph *g, MaxFlow *mf)
 		}
 	}
 
-	bfs_minimum_cut(g, mf);
+	bfs_minimum_cut(g, mf, sink);
 
 	return mf->value;
 }
@@ -448,7 +448,6 @@ int main(void) {
 	graph_init(&g, t);
 
 	/* Apply this project's magic */
-	graph_print(&g);
 	apply(&g);
 
 	/* Freeing data */
