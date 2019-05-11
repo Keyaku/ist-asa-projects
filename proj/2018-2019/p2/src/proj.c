@@ -302,11 +302,12 @@ void maxflow_destroy(MaxFlow *mf)
 /* BFS material */
 bool bfs_minimum_cut(Graph *g, MaxFlow *mf)
 {
+	int max_flow = 0;
 	/* Resetting data */
 	queue_reset(mf->q);
 
-	/* Adding source to Queue */
-	queue_push(mf->q, source);
+	/* Adding sink to Queue */
+	queue_push(mf->q, sink);
 
 	while (!queue_is_empty(mf->q)) {
 		Edge adj;
@@ -314,16 +315,27 @@ bool bfs_minimum_cut(Graph *g, MaxFlow *mf)
 
 		for (adj = g->first[u]; adj > 0; adj = g->next[adj]) {
 			Vertex v = g->vertex[adj];
-			int cap = g->capacity[adj];
-			int flow = g->flow[adj];
+			Edge e = g->prev[adj];
+			int cap, flow;
+
+			if (adj % 2 != 0) continue;
+			cap = g->capacity[e];
+			flow = g->flow[e];
 
 			if (flow) {
 				if (!queue_in_queue(mf->q, v)) queue_push(mf->q, v);
 
-				if (g->v_minimum[u] != 0 && g->v_minimum[u] < cap) {
-					if (!queue_in_queue(mf->stations, u)) queue_push(mf->stations, u);
+				if (flow == cap) {
+					queue_push(mf->edges, adj);
+					max_flow += flow;
+				} else if (flow == g->v_minimum[v]) {
+					if (!queue_in_queue(mf->stations, v)) queue_push(mf->stations, v);
+					max_flow += flow;
 				}
 			}
+
+			/* Checking if max flow was hit */
+			if (max_flow == mf->value) return true;
 		}
 	}
 
