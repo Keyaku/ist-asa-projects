@@ -319,7 +319,7 @@ bool bfs_minimum_cut(Graph *g, MaxFlow *mf)
 			Edge e = g->prev[adj];
 			int cap, flow;
 
-			if (adj % 2 != 0) continue;
+			if (adj % 2 != 0) continue; /* Ignore regular adjacencies */
 			cap = g->capacity[e];
 			flow = g->flow[e];
 
@@ -340,7 +340,8 @@ bool bfs_minimum_cut(Graph *g, MaxFlow *mf)
 		}
 	}
 
-	return false;
+	if (max_flow != mf->value) queue_reset(mf->edges);
+	return max_flow == mf->value;
 }
 
 bool bfs_update_level(Graph *g, MaxFlow *mf)
