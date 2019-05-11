@@ -261,7 +261,7 @@ void maxflow_new(MaxFlow *mf, Graph *g)
 	queue_new(mf->edges, (g->nr_edges+1), true);
 }
 
-void maxflow_output(MaxFlow *mf)
+void maxflow_output(MaxFlow *mf, Graph *g)
 {
 	int i, size;
 
@@ -409,7 +409,7 @@ void apply(Graph *g)
 
 	maxflow_new(&mf, g);
 	dinic(g, &mf); /* Summoning algorithm Dinic, O(E V^2) */
-	maxflow_output(&mf);
+	maxflow_output(&mf, &g);
 	maxflow_destroy(&mf);
 }
 
