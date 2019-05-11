@@ -367,6 +367,7 @@ bool bfs_minimum_cut(Graph *g, MaxFlow *mf, Vertex start)
 					} else if (flow == g->v_minimum[u]) {
 						queue_push(mf->stations, u);
 					}
+					printf("%d - %d\n", u, v);
 				}
 				else {
 					queue_push(mf->q, v);
