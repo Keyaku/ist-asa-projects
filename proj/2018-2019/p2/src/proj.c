@@ -225,6 +225,10 @@ void graph_print(Graph *g)
 		vertex_print(u);
 		printf(" -- %3d --> ", g->capacity[adj]);
 		vertex_print(v);
+		if (g->v_minimum[v] != 0) {
+			printf(" -- %3d --> ", g->v_minimum[v]);
+			vertex_print(v); printf("'");
+		}
 		printf("\n");
 	}
 
@@ -444,6 +448,7 @@ int main(void) {
 	graph_init(&g, t);
 
 	/* Apply this project's magic */
+	graph_print(&g);
 	apply(&g);
 
 	/* Freeing data */
