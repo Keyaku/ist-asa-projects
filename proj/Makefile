@@ -1,3 +1,5 @@
+### INSERT THIS MAKE FILE AT THE SAME LEVEL OF src/ AND bld/
+
 # Directories
 SRCDIR = src
 OBJDIR = bld
@@ -14,6 +16,8 @@ CFLAGS+= -Wno-missing-field-initializers
 BUILD ?= release
 ifeq ($(BUILD), debug)
 	CFLAGS += -g -O0 -DDEBUG
+else ifeq ($(BUILD), time)
+	CFLAGS += -std=c99 -DASA_BENCHMARK
 else
 	CFLAGS += -O3
 endif
@@ -40,9 +44,11 @@ projpp: $(EXEC_PROJPP)
 
 # Compilation rules
 $(EXEC_PROJ): $(SRCDIR)/proj.c
+	@$(shell mkdir -p $(OBJDIR))
 	$(CC) $(CCFLAGS) $^ -o $@
 
 $(EXEC_PROJPP): $(SRCDIR)/proj.cpp
+	@$(shell mkdir -p $(OBJDIR))
 	$(CXX) $(CXFLAGS) $^ -o $@
 
 .PHONY: all clean debug test valgrind
