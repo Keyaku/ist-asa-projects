@@ -30,10 +30,11 @@ CXFLAGS = $(CFLAGS) -std=c++11
 EXEC_PROJ = $(OBJDIR)/proj
 EXEC_PROJPP = $(OBJDIR)/projpp
 EXECS = $(EXEC_PROJ) $(EXEC_PROJPP)
+TARGET ?= $(EXEC_PROJ)
 
 
 # General rules (point to main focus files)
-all: proj
+all: $(TARGET)
 
 clean:
 	rm -rf $(EXECS) $(OBJDIR)/*.o $(OBJDIR)/*.dSYM
