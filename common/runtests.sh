@@ -135,7 +135,7 @@ function set_defaults {
 		DIR_tests="$DIR_script"
 	fi
 
-	EXEC_prog="$DIR_project/backbone"
+	EXEC_prog="$DIR_project/bld/proj"
 }
 
 function check_env {
@@ -177,17 +177,14 @@ function test_list {
 			test -f "$test_output" && break
 		done
 
-		# Skip incorrect files
-		test $(StringContains "${test_input##*.}" "routes"; echo $?) -eq 0 && continue
-
 		# Running program
 		local test_name="$(basename "$test_input")"
 		printf "Testing $test_name... "
 
 		if [ "$useValgrind" ]; then
-			$useValgrind "$EXEC_prog" "$test_input" "$EXT_outhyp"
+			$useValgrind "$EXEC_prog" < "$test_input" > "$test_output"
 		else
-			$useTimer "$EXEC_prog" "$test_input" "$EXT_outhyp"
+			$useTimer "$EXEC_prog" < "$test_input" > "$test_output"
 		fi
 
 		if [ $? -ne 0 ]; then
