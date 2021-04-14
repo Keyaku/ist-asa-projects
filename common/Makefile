@@ -13,6 +13,8 @@ CFLAGS = -Wall -Wextra -Wunreachable-code
 CFLAGS+= -Wshadow -Wpointer-arith -Wcast-qual -Wno-missing-braces -Winline
 CFLAGS+= -Wno-missing-field-initializers
 
+LDFLAGS = -lm
+
 BUILD ?= release
 ifeq ($(BUILD), debug)
 	CFLAGS += -g -O0 -DDEBUG
@@ -46,10 +48,10 @@ projpp: $(EXEC_PROJPP)
 # Compilation rules
 $(EXEC_PROJ): $(SRCDIR)/proj.c
 	@$(shell mkdir -p $(OBJDIR))
-	$(CC) $(CCFLAGS) $^ -o $@
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(EXEC_PROJPP): $(SRCDIR)/proj.cpp
 	@$(shell mkdir -p $(OBJDIR))
-	$(CXX) $(CXFLAGS) $^ -o $@
+	$(CXX) $(CXFLAGS) $^ -o $@ $(LDFLAGS)
 
 .PHONY: all clean debug test valgrind
