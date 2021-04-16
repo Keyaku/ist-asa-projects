@@ -1,8 +1,9 @@
 # Project-related files
 *.vscode
 tests/
-/proj/**/p?/**/Makefile
-/proj/**/p?/bld/
+/proj/**/Makefile
+/proj/**/bld/
+/proj/**/proj
 
 # OS files
 *.DS_Store
