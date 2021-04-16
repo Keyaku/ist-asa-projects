@@ -170,7 +170,7 @@ function test_list {
 		test_input="${test_input/$DIR_project\/}"
 		local test_result="${test_input%.*}.diff"
 		local test_outhyp="${test_input%.*}.${EXT_outhyp}"
-		local test_output=""
+		local test_output="${test_input%.*}.${EXT_output}"
 
 		for ext in ${EXT_output[@]}; do
 			test_output="${test_input%.*}.${ext}"
@@ -182,9 +182,9 @@ function test_list {
 		printf "Testing $test_name... "
 
 		if [ "$useValgrind" ]; then
-			$useValgrind "$EXEC_prog" < "$test_input" > "$test_output"
+			$useValgrind "$EXEC_prog" < "$test_input" > "$test_outhyp"
 		else
-			$useTimer "$EXEC_prog" < "$test_input" > "$test_output"
+			$useTimer "$EXEC_prog" < "$test_input" > "$test_outhyp"
 		fi
 
 		if [ $? -ne 0 ]; then
