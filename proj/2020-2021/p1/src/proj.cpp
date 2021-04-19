@@ -11,10 +11,6 @@ class Graph {
 	bool is_bidir;
 	list<int> *adj;
 
-	vector<int> dist;
-	vector<bool> visited;
-	vector<int> order;
-
 public:
 	int nr_vertices, nr_edges;
 	int longest_path, nr_paths;
@@ -24,8 +20,8 @@ public:
 		delete[] adj;
 	}
 	void Connect(int u, int v);
-	void DFS();
-	void DP();
+	void DFS(vector<int> &order);
+	void DP(vector<int> &order, vector<int> &dist);
 	void TopologicalSort();
 
 	/* stdin overloader; builds the Graph */
@@ -33,10 +29,6 @@ public:
 		/* scanf() is faster than >> */
 		scanf("%d %d", &g.nr_vertices, &g.nr_edges);
 		g.adj = new list<int>[g.nr_vertices+1];
-
-		/* Create a vector to store indegrees of all vertices */
-		g.visited = vector<bool>(g.nr_vertices+1, false);
-		g.dist = vector<int>(g.nr_vertices+1, 0);
 
 		for (int i = 0; i < g.nr_edges; i++) {
 			int u, v;
@@ -76,7 +68,7 @@ void Graph::Connect(int u, int v)
 	}
 }
 
-void Graph::DP()
+void Graph::DP(vector<int> &order, vector<int> &dist)
 {
 	/* order is supposed to be a stack, iterate it from last to first items */
 	for (size_t idx = order.size()-1; idx > 0; idx--) {
@@ -90,10 +82,11 @@ void Graph::DP()
 	}
 }
 
-void Graph::DFS()
+void Graph::DFS(vector<int> &order)
 {
 	/* Applying Topological sort while obtaining number of paths (indegree == 0) */
 	vector<bool> is_last(nr_vertices+1, false);
+	vector<bool> visited(nr_vertices+1, false);
 	stack<int> dfs;
 
 	for (int src = 1; src <= nr_vertices; src++) {
@@ -127,8 +120,11 @@ void Graph::DFS()
 
 void Graph::TopologicalSort()
 {
-	DFS();
-	DP();
+	vector<int> order;
+	vector<int> dist(nr_vertices+1, 0);
+
+	DFS(order);
+	DP(order, dist);
 
 	for (int u = 1; u <= nr_vertices; u++) {
 		if (dist[u] == 0) { nr_paths++; }
