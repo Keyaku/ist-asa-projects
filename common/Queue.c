@@ -44,6 +44,6 @@ void Queue_Reset(Queue *q) {
 	q->front = q->back = 0;
 }
 void Queue_Sort(Queue *q) {
-	int size = Queue_size(q);
+	int size = Queue_Size(q);
 	qsort(q->data, size, sizeof(*q->data), intcmp);
 }
